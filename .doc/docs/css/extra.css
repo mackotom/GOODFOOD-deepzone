@@ -1,0 +1,14 @@
+/* Justify all p balises  */
+p {
+    text-align: justify;
+}
+
+
+/* Table default 100% width */
+.md-typeset__table {
+    min-width: 100%;
+ }
+ 
+.md-typeset table:not([class]) {
+    display: table;
+}

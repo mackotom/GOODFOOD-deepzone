@@ -1,0 +1,112 @@
+version: "3.7"
+services:
+  dind:
+    image: docker:dind
+    container_name: goodfood-deep-dind
+    privileged: true
+    expose:
+      - 2375
+      - 2376
+    volumes:
+      - jenkins-data:/var/jenkins_home
+    environment:
+      DOCKER_TLS_CERTDIR: ''
+    networks:
+      - goodfood-dev
+  jenkins:
+    build: 
+      context: ./
+      dockerfile: ./jenkins/Dockerfile
+    environment:
+      DOCKER_HOST: tcp://dind:2375
+      DOCKER_TLS_CERTDIR: ''
+    image: goodfood-deep-jenkins
+    container_name: goodfood-deep-jenkins
+    ports:
+      - 50000:50000
+      - 8081:8080
+    links:
+      - dind
+    volumes:
+      - jenkins-data:/var/jenkins_home
+    networks:
+      - goodfood-dev
+  pgadmin:
+    build:
+      context: ./
+      dockerfile: ./pgadmin/Dockerfile
+    image: goodfood-deep-pgadmin
+    container_name: goodfood-deep-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    ports:
+      - 5050:80
+    networks:
+      - goodfood
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+  sonarqube:
+    environment:
+      SONAR_JDBC_URL: ${SONAR_JDBC_URL}
+      SONAR_JDBC_USERNAME: ${SONAR_JDBC_USERNAME}
+      SONAR_JDBC_PASSWORD: ${SONAR_JDBC_PASSWORD}
+    build: 
+      context: ./
+      dockerfile: ./sonarqube/Dockerfile
+    image: goodfood-deep-sonarqube
+    container_name: goodfood-deep-sonarqube
+    ports:
+      - 9000:9000
+    networks:
+      - goodfood-dev
+    volumes:
+      - sonar-data:/opt/sonarqube/data
+      - sonar-logs:/opt/sonarqube/logs
+      - sonar-extensions:/opt/sonarqube/extensions
+  doc:
+    build:
+      context: ./
+      dockerfile: ./.doc/Dockerfile
+    image: goodfood-deep-doc
+    container_name: goodfood-deep-doc
+    restart: unless-stopped
+    working_dir: /docs
+    volumes:
+      - ./.doc:/docs
+    ports:
+      - 8008:8000
+  db:
+    image: postgres:12
+    container_name: goodfood-deep-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgresql:/var/lib/postgresql
+      - postgresql-data:/var/lib/postgresql/data
+    networks:
+      - goodfood-dev
+
+volumes:
+  pgadmin-data:
+    driver: local
+  jenkins-data:
+    driver: local
+  sonar-data:
+    driver: local
+  sonar-logs:
+    driver: local
+  sonar-extensions:
+    driver: local
+  postgresql:
+    driver: local
+  postgresql-data:
+    driver: local
+
+networks:
+  goodfood:
+    name: goodfood
+    driver: bridge
+  goodfood-dev:
+    driver: bridge

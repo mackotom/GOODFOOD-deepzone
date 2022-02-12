@@ -1,0 +1,41 @@
+site_name: GOODFOOD DEEP ZONE
+site_url: "http://localhost:8008"
+dev_addr: "localhost:8008"
+
+nav:
+  - Accueil: index.md
+  - Jenkins: jenkins.md
+  - SonarQube: sonarqube.md
+  - PgAdmin: pgadmin.md
+
+theme:
+  name: material
+  palette: 
+    - scheme: default
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+      primary: teal
+      accent: teal
+    - scheme: slate 
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+      primary: red
+      accent: red
+  icon:
+    logo: material/desktop-classic
+
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+
+extra_css:
+    - css/extra.css
